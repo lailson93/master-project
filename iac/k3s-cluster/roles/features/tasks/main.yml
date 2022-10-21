@@ -1,0 +1,27 @@
+---
+#- name: Enable Traefik Dashboard.
+#  lineinfile:
+#    path: /var/lib/rancher/k3s/server/manifests/traefik.yaml
+#    line: '    dashboard.enabled: "true"'
+
+# - name: Get master node name
+#   shell: hostname
+#   register: node
+
+# - name: Taint master node
+#   shell: kubectl --kubeconfig=/etc/rancher/k3s/k3s.yaml taint node {{node.stdout}} node-role.kubernetes.io/master=effect:NoSchedule
+
+- name: Download k9s
+  shell: wget https://github.com/derailed/k9s/releases/download/v0.25.18/k9s_Linux_x86_64.tar.gz
+
+- name: UnArchive k9s binary
+  unarchive:
+  src: k9s_Linux_x86_64.tar.gz
+  dest: /usr/local/bin/
+  become: true
+
+- name: Copy k3s-server-uninstall file to master host
+  copy:
+    src: ../../k3s-uninstall.sh
+    dest: /etc/k3s-uninstall.sh
+    mode: "0644"

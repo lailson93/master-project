@@ -1,0 +1,31 @@
+---
+- hosts: k3s-cluster
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: prereq }
+    - { role: download }
+  tags:
+    - setup
+
+- hosts: master
+  #  gather_facts: yes
+  become: yes
+  roles:
+    - { role: k3s/master }
+  tags:
+    - k3smain
+
+- hosts: node
+  become: yes
+  roles:
+    - { role: k3s/node }
+  tags:
+    - addnode
+
+- hosts: master
+  become: yes
+  roles:
+    - { role: features }
+  tags:
+    - addfeatures
