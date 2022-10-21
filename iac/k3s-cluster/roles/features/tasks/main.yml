@@ -20,6 +20,12 @@
   dest: /usr/local/bin/
   become: true
 
+- name: Download Keda
+  shell: wget https://github.com/kedacore/keda/releases/download/v{{ keda_version }}/keda-{{ keda_version }}.yaml
+
+- name: Install Keda
+  shell: kubectl apply -f keda-{{ keda_version }}.yaml
+
 - name: Copy k3s-server-uninstall file to master host
   copy:
     src: ../../k3s-uninstall.sh
