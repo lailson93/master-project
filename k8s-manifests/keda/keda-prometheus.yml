@@ -1,0 +1,21 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: keda-prometheus-scaleobject
+  namespace: <changeme>
+spec:
+  scaleTargetRef:
+    name: nginx-deployment ## deployment
+  idleReplicaCount: 1
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  pollingInterval: 15
+  advanced:
+    restoreToOriginalReplicaCount: true ## once deleted deployment returns to minimal number of replicas
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.istio-system.svc:9090
+        metricName: istio_requests_total
+        threshold: "0.6"
+        query: sum( rate( istio_requests_total{app="istio-ingressgateway", destination_app="nginx", destination_canonical_service="nginx", destination_service="nginx.keda-examples.svc.cluster.local", destination_service_name="nginx", destination_service_namespace="keda-examples", destination_workload="nginx-deployment", destination_workload_namespace="keda-examples", istio="ingressgateway", reporter="source", request_protocol="http", source_app="istio-ingressgateway"}[1m] ) ) / count( count( container_memory_usage_bytes{ namespace="keda-examples",  pod=~"nginx-.*" } ) by (pod) )
